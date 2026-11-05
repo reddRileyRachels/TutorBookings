@@ -21,6 +21,25 @@ namespace TutorBookings
                 LoadTutors();
             }
         }
+
+        private bool IsWithinSemester(DateTime date)
+        {
+            int month = date.Month;
+            int day = date.Day;
+
+            // Fall semester: August 1 - December 1
+            bool fallSemester =
+                (month >= 8 && month <= 11) ||
+                (month == 12 && day == 1);
+
+            // Spring semester: January 1 - May 1
+            bool springSemester =
+                (month >= 1 && month <= 4) ||
+                (month == 5 && day == 1);
+
+            return fallSemester || springSemester;
+        }
+
         protected void LoadTutors()
         {
             using (var db = DatabaseHelper.Connect())
@@ -53,15 +72,10 @@ namespace TutorBookings
         {
             using (var db = DatabaseHelper.Connect())
             {
-                var sqlSemester = "SELECT StartDate, EndDate FROM Semester WHERE Active = 1";
-                var Semester = db.QuerySingle<Semester>(sqlSemester);
 
-                DateTime StartDate = DateTime.Parse(Semester.StartDate).Date;
-                DateTime EndDate = DateTime.Parse(Semester.EndDate).Date;
-
-                if (Semester != null && TutorDDL.SelectedValue == "0" && CourseDDL.SelectedValue == "0")
+                if (TutorDDL.SelectedValue == "0" && CourseDDL.SelectedValue == "0")
                 {
-                    if (e.Day.Date < DateTime.Today.AddDays(1) || e.Day.Date > DateTime.Today.AddDays(30) || StartDate > e.Day.Date || e.Day.Date > EndDate)
+                    if (e.Day.Date < DateTime.Today.AddDays(1) || e.Day.Date > DateTime.Today.AddDays(30) || !IsWithinSemester(e.Day.Date))
                     {
                         e.Day.IsSelectable = false;
                         e.Cell.ForeColor = System.Drawing.Color.Gray;
@@ -121,9 +135,8 @@ namespace TutorBookings
                     }
                 }
 
-                if (Semester != null)
                 {
-                    if (e.Day.Date < DateTime.Today.AddDays(1) || e.Day.Date > DateTime.Today.AddDays(30) || StartDate > e.Day.Date || e.Day.Date > EndDate)
+                    if (e.Day.Date < DateTime.Today.AddDays(1) || e.Day.Date > DateTime.Today.AddDays(30) || !IsWithinSemester(e.Day.Date))
                     {
                         e.Day.IsSelectable = false;
                         e.Cell.ForeColor = System.Drawing.Color.Gray;
@@ -523,11 +536,6 @@ namespace TutorBookings
                 {
                     CheckBox checkbox = (CheckBox)View2.FindControl("checkbox1");
                     System.Web.UI.WebControls.Calendar cal1 = (System.Web.UI.WebControls.Calendar)View2.FindControl("Calendar1");
-                    var sqlSemester = "SELECT StartDate, EndDate FROM Semester WHERE Active = 1";
-                    var Semester = db.QuerySingle<Semester>(sqlSemester);
-
-                    DateTime StartDate = DateTime.Parse(Semester.StartDate).Date;
-                    DateTime EndDate = DateTime.Parse(Semester.EndDate).Date;
 
                     var sqlA = $"SELECT Date FROM Appointment WHERE TutorId = '{TutorDDL.SelectedValue}' AND Time = '{TimeDDL.SelectedValue}'";
                     var Appointment = db.Query<Appointment>(sqlA).ToList();
@@ -540,9 +548,9 @@ namespace TutorBookings
                     var sqlTOall = $"SELECT Date FROM TimeOff";
                     var TimeOffAll = db.Query<Appointment>(sqlTOall).ToList();
 
-                    if (Semester != null && checkbox.Checked == false) //box unchecked = load all dates for chosen tutor from start to end of semester
+                    if (checkbox.Checked == false) //box unchecked = load all dates for chosen tutor from start to end of semester
                     {
-                        if (e.Day.Date < Date.SelectedDate.AddDays(1) || e.Day.Date > DateTime.Today.AddDays(30) || StartDate > e.Day.Date || e.Day.Date > EndDate || e.Day.Date.DayOfWeek != Date.SelectedDate.DayOfWeek)
+                        if (e.Day.Date < Date.SelectedDate.AddDays(1) || e.Day.Date > DateTime.Today.AddDays(30) || !IsWithinSemester(e.Day.Date) || e.Day.Date.DayOfWeek != Date.SelectedDate.DayOfWeek)
                         {
                             e.Day.IsSelectable = false;
                             e.Cell.ForeColor = System.Drawing.Color.Gray;
@@ -573,7 +581,7 @@ namespace TutorBookings
                         foreach (var a in AppointmentAll)
                         {
                             DateTime AppointmentDate = DateTime.Parse(a.Date).Date;
-                            if (AppointmentDate != e.Day.Date & (StartDate <= e.Day.Date || e.Day.Date <= EndDate || e.Day.Date.DayOfWeek == Date.SelectedDate.DayOfWeek))
+                            if (AppointmentDate != e.Day.Date && IsWithinSemester(e.Day.Date) && e.Day.Date.DayOfWeek == Date.SelectedDate.DayOfWeek)
                             {
                                 e.Day.IsSelectable = true;
                                 e.Cell.ForeColor = System.Drawing.Color.Black;
@@ -590,7 +598,7 @@ namespace TutorBookings
                             }
                         }
 
-                        if (e.Day.Date < Date.SelectedDate.AddDays(1) || e.Day.Date > DateTime.Today.AddDays(30) || StartDate > e.Day.Date || e.Day.Date > EndDate || e.Day.Date.DayOfWeek != Date.SelectedDate.DayOfWeek)
+                        if (e.Day.Date < Date.SelectedDate.AddDays(1) || e.Day.Date > DateTime.Today.AddDays(30) || !IsWithinSemester(e.Day.Date) || e.Day.Date.DayOfWeek != Date.SelectedDate.DayOfWeek)
                         {
                             e.Day.IsSelectable = false;
                             e.Cell.ForeColor = System.Drawing.Color.Gray;
@@ -739,11 +747,6 @@ namespace TutorBookings
 
             using (var db = DatabaseHelper.Connect())
             {
-                var sqlSemester = "SELECT StartDate, EndDate FROM Semester WHERE Active = 1";
-                var Semester = db.QuerySingle<Semester>(sqlSemester);
-
-                DateTime StartDate = DateTime.Parse(Semester.StartDate).Date;
-                DateTime EndDate = DateTime.Parse(Semester.EndDate).Date;
 
                 var sqlA = $"SELECT Date FROM Appointment WHERE TutorId = '{TutorDDL.SelectedValue}' AND Time = '{TimeDDL.SelectedValue}'";
                 var Appointment = db.Query<Appointment>(sqlA).ToList();
@@ -762,9 +765,9 @@ namespace TutorBookings
                 CheckBox checkbox = (CheckBox)View2.FindControl("checkbox1");
                 bool isBlocked = true;
 
-                for (DateTime d = Date.SelectedDate.AddDays(1); d <= EndDate; d = d.AddDays(1))
+                for (DateTime d = Date.SelectedDate.AddDays(1); d <= DateTime.Today.AddDays(30); d = d.AddDays(1))
                 {
-                    if (d <= DateTime.Today.AddDays(30) && d.DayOfWeek == targetDay)
+                    if (d <= DateTime.Today.AddDays(30) && d.DayOfWeek == targetDay &&IsWithinSemester(d))
                     {
                         if (!checkbox.Checked) {
                             isBlocked = Appointment.Any(a => DateTime.Parse(a.Date).Date == d) ||
