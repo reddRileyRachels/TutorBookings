@@ -4,13 +4,13 @@
 
 This collaborative project is a web application that connects tutors and students. It is inspired by Riley's experience as a peer tutor and Microsoft Bookings' lack of recurring appointment scheduling, a feature strongly desired by students. The goal is to implement this feature to improve the user experience for scheduling tutoring. 
 
-## Technologies
+### Technologies
 
 - HTML/CSS
 - SQLite 
-- C#/ASP.Net/Dapper
+- C#/ASP.Net Web Forms/Dapper
 
-## Collaborators
+### Collaborators
 **Riley @reddwryly**
 - HTML/CSS
 - Database schema design + implementation
@@ -24,9 +24,10 @@ This collaborative project is a web application that connects tutors and student
 
 ## Running the Project 
 
-Make sure the following are installed before continuing: 
+Required before continuing: 
+* Windows 10 or Windows 11
 * Visual Studio + the ASP.NET and web development workload
-* .NET Framework 4.7.2 Target framework 
+* .NET Framework 4.7.2 Developer Pack (target framework)
 
 ### 1.) Clone the Repository 
 
@@ -42,20 +43,19 @@ UI:
 
 **OR** Terminal: 
 * Open Terminal from the project directory
-* copy/paste in the terminal: ```msbuild TutorBookings.slnx /p:Configuration=Debug```
+* Run: ```msbuild TutorBookings.slnx /p:Configuration=Debug```
 
 ### 3.) Start the Web Application from the UI or Terminal
 
 UI: 
 * Under the top navigation bar find and click the **Start Button** (green filled triangle)
-* A webpage will open with an error (the default path is not configured)
-* Append the populated URL with /AboutTutoring 
+* The browser will open. If the default page displays an error, append /AboutTutoring to the URL
 	- When complete, it should look something like: ```http://localhost:61133/AboutTutoring```
 
 **OR** Terminal: 
 * Open terminal from project directory
-* copy/paste in the terminal run: ```& "${env:ProgramFiles(x86)}\IIS Express\iisexpress.exe" /path:"$PWD" /port:8080```
-* In a new terminal window, copy/paste to open: ```Start-Process "http://localhost:8080/AboutTutoring"```
+* run: ```& "${env:ProgramFiles(x86)}\IIS Express\iisexpress.exe" /path:"$PWD" /port:8080```
+* In a new terminal window, run: ```Start-Process "http://localhost:8080/AboutTutoring"```
 	- **OR** copy/paste in your browser to open: ```http://localhost:8080/AboutTutoring```
 
 Note: The terminal method uses port 8080, while Visual Studio in the UI method may use a different port
@@ -69,7 +69,7 @@ Left incomplete:
 > * Baseline HTML/CSS
 > * Database design/implementation
 > * Database Connection
-> * Apointment Scheduling Form
+> * Appointment Scheduling Form
 > * Recurring appointment logic
-> * Manually-creat appointments by admin
+> * Manually create appointments by admin
 > * Unique Appointment ID and Student Names
